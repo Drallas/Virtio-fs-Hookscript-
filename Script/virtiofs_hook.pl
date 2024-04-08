@@ -36,9 +36,9 @@ StopWhenUnneeded=true
 
 [Service]
 Type=simple
-RuntimeDirectory=virtiofsd
-PIDFile=/run/virtiofsd/.run.virtiofsd.%i-[% share_id %].sock.pid
-ExecStart=/usr/libexec/virtiofsd --log-level debug --socket-path /run/virtiofsd/%i-[% share_id %].sock --shared-dir [% share %] --cache=auto --announce-submounts --inode-file-handles=mandatory
+RuntimeDirectory=virtiofsd/%i-[% share_id %]
+PIDFile=/run/virtiofsd/%i-[% share_id %]/.run.virtiofsd.%i-[% share_id %].sock.pid
+ExecStart=/usr/libexec/virtiofsd --log-level debug --socket-path /run/virtiofsd/%i-[% share_id %]/%i-[% share_id %].sock --shared-dir [% share %] --cache=auto --announce-submounts --inode-file-handles=mandatory
 
 [Install]
 RequiredBy=%i.scope\n";
@@ -74,7 +74,7 @@ if ($phase eq 'pre-start') {
       system("/usr/bin/systemctl enable $unit_name\@$vmid.service");
     }
     system("/usr/bin/systemctl start $unit_name\@$vmid.service");
-    $vfs_args .= " -chardev socket,id=char$char_id,path=/run/virtiofsd/$vmid-$share_id.sock";
+    $vfs_args .= " -chardev socket,id=char$char_id,path=/run/virtiofsd/$vmid-$share_id/$vmid-$share_id.sock";
     $vfs_args .= " -device vhost-user-fs-pci,chardev=char$char_id,tag=$vmid-$share_id";
     $char_id += 1;
   }
